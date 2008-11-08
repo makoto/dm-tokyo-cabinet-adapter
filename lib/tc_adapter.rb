@@ -14,8 +14,7 @@ module DataMapper
           cur = BDBCUR::new(item)
           cur.last
           item_id = cur.key.to_i + 1
-    
-          # Setting id
+          
           resources.each do |resource|
             # >> resource.class.key(self.name)
             # => [#<Property:User:id>]
@@ -26,8 +25,10 @@ module DataMapper
           end
         
           # Saving Item to DB
-          record = OpenStruct.new
-          record.id = item_id
+          attributes = resources.first.attributes
+          attributes[:id] = item_id
+          
+          record = OpenStruct.new(attributes)
           item.put(item_id, Marshal.dump(record))
         end
         # item.close        
@@ -38,7 +39,25 @@ module DataMapper
       end
 
       def read_one(query)
-        raise NotImplementedError
+        #DataMapper::Query 
+        #query
+        # => #<DataMapper::Query @repository=:default @model=User @fields=[#<Property:User:id>,
+        # <Property:User:name>, #<Property:User:age>] @links=[] 
+        # @conditions=[[:eql, #<Property:User:id>, 1]] 
+        # @order=[#<DataMapper::Query::Direction #<Property:User:id> asc>] 
+        # @limit=1 @offset=0 @reload=false @unique=fa
+        item_id = query.conditions.first.last
+
+        data = do_tokyo_cabinet do |item|
+          # OpenStruct#marshal_dump convets OpenStruct into a hash
+          Marshal.load(item.get(item_id)).marshal_dump
+        end
+
+        data = query.fields.map do |property|
+          data[property.field.to_sym]
+        end
+        
+        query.model.load(data,query)
       end
 
       def update(attributes, query)
@@ -58,10 +77,11 @@ module DataMapper
         item = BDB::new
         item.open(data_path + "Item.bdb", BDB::OWRITER | BDB::OCREAT)
         
-        yield (item)
+        result = yield (item)
         
         item.close        
-        
+
+        result
       end
     end # class AbstractAdapter
   end # module Adapters

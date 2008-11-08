@@ -37,7 +37,6 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
     end
 
     it "should get an item" do
-      pending
       User.get(@user.id).should == @user
     end
 
