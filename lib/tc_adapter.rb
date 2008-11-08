@@ -49,15 +49,21 @@ module DataMapper
         item_id = query.conditions.first.last
 
         data = do_tokyo_cabinet do |item|
+          raw_data = item.get(item_id)
           # OpenStruct#marshal_dump convets OpenStruct into a hash
-          Marshal.load(item.get(item_id)).marshal_dump
+          if raw_data
+            Marshal.load(raw_data).marshal_dump
+          end
         end
-
-        data = query.fields.map do |property|
-          data[property.field.to_sym]
-        end
+        if data
+          data = query.fields.map do |property|
+            data[property.field.to_sym]
+          end
         
-        query.model.load(data,query)
+          query.model.load(data,query)
+        else
+          nil
+        end
       end
 
       def update(attributes, query)

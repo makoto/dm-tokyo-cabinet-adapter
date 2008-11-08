@@ -36,14 +36,15 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
       end
     end
 
-    it "should get an item" do
-      User.get(@user.id).should == @user
-    end
+    describe "get" do
+      it "should get an item" do
+        User.get(@user.id).should == @user
+      end
 
-    it "should raise error if item does not exist" do
-      pending
-      User.get(0).should == @user
-      lambda {User.get(@user.id)}.should_raise DataMapper::ObjectNotFoundError
+      it "should raise error if item does not exist" do
+        non_existance_number = 100
+        lambda{User.get!(non_existance_number)}.should raise_error(DataMapper::ObjectNotFoundError)
+      end
     end
 
     it "should update an item" do
