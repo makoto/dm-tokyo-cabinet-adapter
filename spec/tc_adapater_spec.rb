@@ -5,10 +5,10 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
   before(:each) do
     db_files = Dir.glob(DataMapper.repository.adapter.uri[:data_path].to_s + "/*.*db")
     FileUtils.rm(db_files)
+    @user = User.create(:name => 'tom')
   end
   # before(:each) do
   #   pending
-  #   @user = User.create(:name => 'tom')
   # end
   
   describe "Repository" do
@@ -32,8 +32,7 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
       it "should increment id" do
         first_user = User.create
         second_user = User.create
-        first_user.id.should == 1
-        second_user.id.should == 2
+        first_user.id.should == second_user.id - 1
       end
     end
 
