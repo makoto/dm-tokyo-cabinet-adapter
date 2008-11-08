@@ -59,10 +59,7 @@ module DataMapper
           data = query.fields.map do |property|
             data[property.field.to_sym]
           end
-        
           query.model.load(data,query)
-        else
-          nil
         end
       end
 
