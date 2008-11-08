@@ -4,7 +4,7 @@ require Pathname(__FILE__).dirname.expand_path + 'spec_helper'
 describe DataMapper::Adapters::TokyoCabinetAdapter do
   before(:each) do
     db_files = Dir.glob(DataMapper.repository.adapter.uri[:data_path].to_s + "/*.*db")
-    FileUtils.rm (db_files)
+    FileUtils.rm(db_files)
   end
   # before(:each) do
   #   pending
@@ -25,7 +25,7 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
     describe "create" do
       it "should assign id and attributes" do
         user = User.create
-        user.should be_an_instance_of User
+        user.should be_an_instance_of(User)
         user.id.should_not == nil
       end
       
@@ -99,7 +99,7 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
    end
    it 'should work with belongs_to associations' do 
      pending
-     @user.posts.should be_include @post
+     @user.posts.should be_include(@post)
    end
     
    it 'should work with has n associations' do
