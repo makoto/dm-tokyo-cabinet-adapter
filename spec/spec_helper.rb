@@ -10,8 +10,8 @@ DataMapper.setup(:default, {
 
 class Post
   include DataMapper::Resource
-  
-  property :id,         String, :key => true
+
+  property :id,         Serial
   property :title,      String
   
   belongs_to :user
@@ -20,7 +20,7 @@ end
 class User
   include DataMapper::Resource
   
-  property :id,   String, :key => true
+  property :id,   Serial
   property :name, String
   property :age,  Integer
   

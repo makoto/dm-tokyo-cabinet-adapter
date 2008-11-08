@@ -3,16 +3,38 @@ require Pathname(__FILE__).dirname.expand_path + 'spec_helper'
 
 describe DataMapper::Adapters::TokyoCabinetAdapter do
   before(:each) do
-    pending
-    @user = User.create(:name => 'tom')
+    db_files = Dir.glob(DataMapper.repository.adapter.uri[:data_path].to_s + "/*.*db")
+    FileUtils.rm (db_files)
   end
+  # before(:each) do
+  #   pending
+  #   @user = User.create(:name => 'tom')
+  # end
+  
+  describe "Repository" do
+    it "should return adapter name" do
+      DataMapper.repository.adapter.uri[:adapter].should == 'tokyo_cabinet'
+    end
+    
+    it "should return data path" do
+      DataMapper.repository.adapter.uri[:data_path].should == Pathname(__FILE__).dirname.parent.expand_path + 'data'
+    end
+  end
+    
   describe "Basic CRUD" do
-    it "should create an item" do
-      pending
-      user = User.create(:name => 'tom')
-      user.should be_an_instance_of User
-      user.id.should_not == nil
-      user.name.should == 'tom'
+    describe "create" do
+      it "should assign id and attributes" do
+        user = User.create
+        user.should be_an_instance_of User
+        user.id.should_not == nil
+      end
+      
+      it "should increment id" do
+        first_user = User.create
+        second_user = User.create
+        first_user.id.should == 1
+        second_user.id.should == 2
+      end
     end
 
     it "should get an item" do
@@ -70,6 +92,7 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
    
   describe 'associations' do
    before(:each) do
+     pending
      @user = User.create(:name => 'tom')
      @post = Post.create(:title => 'Good morning')
      @user.posts << @post
