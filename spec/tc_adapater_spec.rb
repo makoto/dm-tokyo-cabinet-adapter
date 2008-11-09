@@ -5,7 +5,6 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
   before(:each) do
     db_files = Dir.glob(DataMapper.repository.adapter.uri[:data_path].to_s + "/*.*db")
     FileUtils.rm(db_files)
-    @user = User.create(:name => 'tom')
   end
   # before(:each) do
   #   pending
@@ -22,6 +21,9 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
   end
     
   describe "Basic CRUD" do
+    before(:each) do
+      @user = User.create(:name => 'tom')
+    end
     describe "create" do
       it "should assign id and attributes" do
         user = User.create
@@ -52,26 +54,26 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
       @user.age = 22
       
       @user.save
-      User.get(@user.id).name.should == @user.name
+      user = User.get(@user.id)
+      user.name.should == @user.name
+      user.age.should == @user.age
     end
     it "should destroy an item" do
-      # debugger
-      @user.save
       @user.destroy
-      # raise User.get!(@user.id).inspect
       lambda{User.get!(@user.id)}.should raise_error(DataMapper::ObjectNotFoundError)
     end
   end
 
   describe 'Finder' do
     before(:each) do
-      User.create(:name => 'tom')
-      User.create(:name => 'peter')
+      @tom = User.create(:name => 'tom')
+      @peter = User.create(:name => 'peter')
     end
+
     it 'should get one record' do
-      pending
-      User.first.should have(1).user
+      User.first.should == @tom
     end
+
     it 'should get all records' do
       pending
       User.all.should have.at_least(2).users

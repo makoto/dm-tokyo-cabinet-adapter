@@ -43,13 +43,23 @@ module DataMapper
       def read_one(query)
         item_id = get_id(query)
 
-        data = do_tokyo_cabinet do |item|
-          raw_data = item.get(item_id)
-          # OpenStruct#marshal_dump convets OpenStruct into a hash
-          if raw_data
-            Marshal.load(raw_data).marshal_dump
+        if item_id # Model.get
+          data = do_tokyo_cabinet do |item|
+            raw_data = item.get(item_id)
+            # OpenStruct#marshal_dump convets OpenStruct into a hash
+            if raw_data
+              Marshal.load(raw_data).marshal_dump
+            end
+          end
+        else # Model.first w/o argument
+          data = do_tokyo_cabinet do |item|
+            raw_data = BDBCUR::new(item)
+            if raw_data.first
+              Marshal.load(raw_data.val).marshal_dump
+            end
           end
         end
+
         if data
           data = query.fields.map do |property|
             data[property.field.to_sym]
@@ -72,7 +82,6 @@ module DataMapper
             item.put(item_id, Marshal.dump(record))              
           end
         end
-
         # Seems required to return 1 to update @new_record instance variable at DataMapper::Resource.
         # Not quite sure how it works.
         1
@@ -111,7 +120,9 @@ module DataMapper
         # @conditions=[[:eql, #<Property:User:id>, 1]] 
         # @order=[#<DataMapper::Query::Direction #<Property:User:id> asc>] 
         # @limit=1 @offset=0 @reload=false @unique=fa
-        query.conditions.first.last
+        unless query.conditions.empty?
+          query.conditions.first.last
+        end
       end
     end # class AbstractAdapter
   end # module Adapters
