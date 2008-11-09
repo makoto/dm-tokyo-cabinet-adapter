@@ -102,8 +102,14 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
           @peter = User.create(:name => 'peter', :age => 3)
           @mark = User.create(:name => 'mark', :age => 5)
         end
-        it "should return a record for string" do
+        it "should return a record for string when non matching value comes first" do
+          pending()
           User.first(:name.not => 'tom').should == @peter
+        end
+        
+        it "should return a record for string when matching value comes first" do
+          pending()
+          User.first(:name.not => 'peter').should == @tom
         end
         it "should return a record for numeric" do
           pending
@@ -119,7 +125,16 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
       it 'should get a record with multiple matchers'
     end
     describe "all" do
-      it 'should get records by eql matcher'
+      before(:each) do
+        @tom = User.create(:name => 'tom', :age => 2)
+        @peter = User.create(:name => 'peter', :age => 3)
+        @mark = User.create(:name => 'mark', :age => 5)
+        @andy = User.create(:name => 'andy', :age => 5)
+      end
+      it 'should get records by eql matcher' do
+        pending
+        User.all(:age => 5).should == [@mark, @andy]
+      end
       it 'should get records by not matcher'
       it 'should get records by gt matcher'
       it 'should get records by gte matcher'
