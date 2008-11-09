@@ -205,6 +205,7 @@ module DataMapper
         end
       end
       
+      # TODO: Refactor to consolidate with get_item_from_id method
       def get_items_from_id(query, values)
         values.map do |value|
           access_data(query.model) do |item|
