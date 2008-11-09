@@ -68,16 +68,19 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
     before(:each) do
       @tom = User.create(:name => 'tom')
       @peter = User.create(:name => 'peter')
+      @post = Post.create
     end
 
-    it 'should get one record' do
+    it 'should get one record per model' do
       User.first.should == @tom
+      Post.first.should == @post
     end
 
-    it 'should get all records' do
-      pending
-      User.all.should have.at_least(2).users
+    it 'should return collection of all records per model' do
+      Post.all.should have(1).post
+      User.all.should have(2).users
     end
+    
   end
 
   describe "Matcher" do
