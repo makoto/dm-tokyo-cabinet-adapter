@@ -81,14 +81,32 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
   end
 
   describe "Matcher" do
-    
-    it 'should get records by eql matcher' 
-    it 'should get records by not matcher'
-    it 'should get records by gt matcher'
-    it 'should get records by gte matcher'
-    it 'should get records by lt matcher'
-    it 'should get records by lte matcher'
-    it 'should get records with multiple matchers'
+    before(:each) do
+      @four = User.create(:name => 'four', :age => 32)
+      @three = User.create(:name => 'three', :age => 31)
+      @one = User.create(:name => 'one', :age => 5)
+      @two = User.create(:name => 'two', :age => 6)
+    end
+    describe "first" do
+      it 'should get a record by eql matcher' do        
+        User.first(:name => 'four').should == @four
+      end 
+      it 'should get a record by not matcher'
+      it 'should get a record by gt matcher'
+      it 'should get a record by gte matcher'
+      it 'should get a record by lt matcher'
+      it 'should get a record by lte matcher'
+      it 'should get a record with multiple matchers'
+    end
+    describe "all" do
+      it 'should get records by eql matcher'
+      it 'should get records by not matcher'
+      it 'should get records by gt matcher'
+      it 'should get records by gte matcher'
+      it 'should get records by lt matcher'
+      it 'should get records by lte matcher'
+      it 'should get records with multiple matchers'
+    end
   end
 
   describe "DataType" do

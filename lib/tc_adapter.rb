@@ -10,7 +10,7 @@ module DataMapper
     class TokyoCabinetAdapter < AbstractAdapter
       
       def create(resources)
-        access_data(resources.first.model) do |item|
+        item_id = access_data(resources.first.model) do |item|
           #Getting the latest id
           #TODO:Find out how to get last id using FDB, rather than BDB
           cur = BDBCUR::new(item)
@@ -32,7 +32,18 @@ module DataMapper
           
           record = OpenStruct.new(attributes)
           item.put(item_id, Marshal.dump(record))
+          item_id
         end
+        
+        # Creating index for each attributes except id
+        resources.first.attributes.each do |key, value|
+          unless key == :id
+            access_index(resources.first.class, key) do |item|
+              item.put(value, item_id)
+            end
+          end
+        end
+        
         # Seems required to return 1 to update @new_record instance variable at DataMapper::Resource.
         # Not quite sure how it works.
         1
@@ -77,11 +88,11 @@ module DataMapper
           if property.name == :id # Model.get
             data = get_item_from_id(query, value)
           else # Model.first w argument
-            # do_index_tokyo_cabinet(query.model, property.name) do
-            #   attribute.get(value)
-            # end
-            data = get_item_from_id(query, value)
+            item_id = access_index(query.model, property.name) do |item|
+              item.get(value)
             end
+            data = get_item_from_id(query, item_id)
+          end
         else # Model.first w/o argument
           data = access_data(query.model) do |item|
             raw_data = BDBCUR::new(item)
@@ -135,12 +146,27 @@ module DataMapper
         item = BDB::new
         item.open(data_path + "#{model}.bdb", BDB::OWRITER | BDB::OCREAT)
         
-        result = yield (item)
+        result = yield(item)
         
         item.close        
 
         result
       end
+      
+      def access_index(model, property, &block)
+        data_path = DataMapper.repository.adapter.uri[:data_path].to_s + "/"
+        
+        item = BDB::new
+        attribute = property.to_s.capitalize
+        item.open(data_path + "#{model}#{attribute}.bdb", BDB::OWRITER | BDB::OCREAT)
+        
+        result = yield(item)
+        
+        item.close        
+
+        result        
+      end
+      
       
       def get_id(query)
         unless query.conditions.empty?
