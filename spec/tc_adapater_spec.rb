@@ -89,10 +89,15 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
       @five = User.create(:name => 'five', :age => 32)
     end
     describe "first" do
-      it 'should get a record by eql matcher' do        
-        User.first(:name => 'four').should == @four
-        User.first(:age => 32).should == @four        
-      end 
+      describe "eql" do
+        it "should return a record " do
+          User.first(:name => 'four').should == @four
+        end
+        it "should return first record when searched by an attribute which allows duplicate entry" do
+          User.first(:age => 32).should == @four        
+        end
+      end
+      
       it 'should get a record by not matcher'
       it 'should get a record by gt matcher'
       it 'should get a record by gte matcher'
