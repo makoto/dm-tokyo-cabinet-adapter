@@ -58,22 +58,18 @@ module DataMapper
         end
       end
 
-      # Looks working without implmenting any...
       def update(attributes, query)
         item_id = get_id(query)
-
         do_tokyo_cabinet do |item|
           raw_data = item.get(item_id)
-          do_tokyo_cabinet do |item|
-            if raw_data
-              record = Marshal.load(raw_data)
+          if raw_data
+            record = Marshal.load(raw_data)
 
-              attributes.each do |key, value|
-                record.send("#{key.name}=", value)
-              end
-
-              item.put(item_id, Marshal.dump(record))              
+            attributes.each do |key, value|
+              record.send("#{key.name}=", value)
             end
+
+            item.put(item_id, Marshal.dump(record))              
           end
         end
 
