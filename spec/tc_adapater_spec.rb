@@ -81,23 +81,36 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
   end
 
   describe "Matcher" do
-    before(:each) do
-      @four = User.create(:name => 'four', :age => 32)
-      @three = User.create(:name => 'three', :age => 31)
-      @one = User.create(:name => 'one', :age => 5)
-      @two = User.create(:name => 'two', :age => 6)
-      @five = User.create(:name => 'five', :age => 32)
-    end
     describe "first" do
       describe "eql" do
+        before(:each) do
+          @tom = User.create(:name => 'tom', :age => 32)
+          @peter = User.create(:name => 'peter', :age => 32)
+        end
+        
         it "should return a record " do
-          User.first(:name => 'four').should == @four
+          User.first(:name => 'tom').should == @tom
         end
         it "should return first record when searched by an attribute which allows duplicate entry" do
-          User.first(:age => 32).should == @four        
+          User.first(:age => 32).should == @tom        
         end
       end
-      
+
+      describe "not" do
+        before(:each) do
+          @tom = User.create(:name => 'tom', :age => 2)
+          @peter = User.create(:name => 'peter', :age => 3)
+          @mark = User.create(:name => 'mark', :age => 5)
+        end
+        it "should return a record for string" do
+          User.first(:name.not => 'tom').should == @peter
+        end
+        it "should return a record for numeric" do
+          pending
+          User.first(:age.not => 2).should == @peter
+        end
+        
+      end
       it 'should get a record by not matcher'
       it 'should get a record by gt matcher'
       it 'should get a record by gte matcher'

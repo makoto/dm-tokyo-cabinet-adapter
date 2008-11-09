@@ -88,8 +88,27 @@ module DataMapper
           if property.name == :id # Model.get
             data = get_item_from_id(query, value)
           else # Model.first w argument
-            item_id = access_data(query.model, property.name) do |item|
-              item.get(value)
+            case operator
+            when :eql
+            then
+              item_id = access_data(query.model, property.name) do |item|
+                item.get(value)
+              end
+            when :not # TODO: Think about better way to extract, as this is going through data one by one
+            then
+              ruby_operator = "!="
+              # result = ""
+              item_id = access_data(query.model, property.name) do |item|
+                raw_data = BDBCUR::new(item)
+                raw_data.first
+                while key = raw_data.key && eval("raw_data.key #{ruby_operator} value")
+                  result = item.get(raw_data.key)
+                  raw_data.next
+                end
+                result
+              end
+            else
+              raise NotImplementedError("#{operator} is not implmented yet")
             end
             data = get_item_from_id(query, item_id)
           end
