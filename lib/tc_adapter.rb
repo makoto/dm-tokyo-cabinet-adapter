@@ -39,7 +39,7 @@ module DataMapper
         resources.first.attributes.each do |key, value|
           unless key == :id
             access_index(resources.first.class, key) do |item|
-              item.put(value, item_id)
+              item.putlist(value, [item_id])
             end
           end
         end

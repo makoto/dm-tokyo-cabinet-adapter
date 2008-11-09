@@ -86,10 +86,12 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
       @three = User.create(:name => 'three', :age => 31)
       @one = User.create(:name => 'one', :age => 5)
       @two = User.create(:name => 'two', :age => 6)
+      @five = User.create(:name => 'five', :age => 32)
     end
     describe "first" do
       it 'should get a record by eql matcher' do        
         User.first(:name => 'four').should == @four
+        User.first(:age => 32).should == @four        
       end 
       it 'should get a record by not matcher'
       it 'should get a record by gt matcher'
