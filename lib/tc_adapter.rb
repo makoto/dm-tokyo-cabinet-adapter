@@ -10,7 +10,7 @@ module DataMapper
     class TokyoCabinetAdapter < AbstractAdapter
       
       def create(resources)
-        do_tokyo_cabinet(resources.first.model) do |item|
+        access_data(resources.first.model) do |item|
           #Getting the latest id
           #TODO:Find out how to get last id using FDB, rather than BDB
           cur = BDBCUR::new(item)
@@ -45,7 +45,7 @@ module DataMapper
         if condition # Model.all w argument
           raise NotImplementedError
         else # Model.all w/o argument
-          do_tokyo_cabinet(query.model) do |item|
+          access_data(query.model) do |item|
             #Getting the first id
             #TODO:Find out how to get first id using FDB, rather than BDB
             raw_data = BDBCUR::new(item)
@@ -71,18 +71,19 @@ module DataMapper
       end
 
       def read_one(query)
-        item_id = get_id(query)
-
-        if item_id # Model.get
-          data = do_tokyo_cabinet(query.model) do |item|
-            raw_data = item.get(item_id)
-            # OpenStruct#marshal_dump convets OpenStruct into a hash
-            if raw_data
-              Marshal.load(raw_data).marshal_dump
+        unless query.conditions.empty?
+          operator, property, value = query.conditions.first
+           
+          if property.name == :id # Model.get
+            data = get_item_from_id(query, value)
+          else # Model.first w argument
+            # do_index_tokyo_cabinet(query.model, property.name) do
+            #   attribute.get(value)
+            # end
+            data = get_item_from_id(query, value)
             end
-          end
         else # Model.first w/o argument
-          data = do_tokyo_cabinet(query.model) do |item|
+          data = access_data(query.model) do |item|
             raw_data = BDBCUR::new(item)
             if raw_data.first
               Marshal.load(raw_data.val).marshal_dump
@@ -100,7 +101,7 @@ module DataMapper
 
       def update(attributes, query)
         item_id = get_id(query)
-        do_tokyo_cabinet(query.model) do |item|
+        access_data(query.model) do |item|
           raw_data = item.get(item_id)
           if raw_data
             record = Marshal.load(raw_data)
@@ -119,7 +120,7 @@ module DataMapper
       
       def delete(query)
         item_id = get_id(query)
-        do_tokyo_cabinet(query.model) do |item|
+        access_data(query.model) do |item|
           item.out(item_id)
         end
         # Seems required to return 1 to update @new_record instance variable at DataMapper::Resource.
@@ -128,7 +129,7 @@ module DataMapper
       end
       
     private
-      def do_tokyo_cabinet(model, &block)
+      def access_data(model, &block)
         data_path = DataMapper.repository.adapter.uri[:data_path].to_s + "/"
         
         item = BDB::new
@@ -142,15 +143,18 @@ module DataMapper
       end
       
       def get_id(query)
-        #DataMapper::Query 
-        #query
-        # => #<DataMapper::Query @repository=:default @model=User @fields=[#<Property:User:id>,
-        # <Property:User:name>, #<Property:User:age>] @links=[] 
-        # @conditions=[[:eql, #<Property:User:id>, 1]] 
-        # @order=[#<DataMapper::Query::Direction #<Property:User:id> asc>] 
-        # @limit=1 @offset=0 @reload=false @unique=fa
         unless query.conditions.empty?
           query.conditions.first.last
+        end
+      end
+      
+      def get_item_from_id(query, value)
+        access_data(query.model) do |item|
+          raw_data = item.get(value)
+          # OpenStruct#marshal_dump convets OpenStruct into a hash
+          if raw_data
+            Marshal.load(raw_data).marshal_dump
+          end
         end
       end
     end # class AbstractAdapter
