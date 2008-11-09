@@ -132,7 +132,6 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
         @andy = User.create(:name => 'andy', :age => 5)
       end
       it 'should get records by eql matcher' do
-        pending
         User.all(:age => 5).should == [@mark, @andy]
       end
       it 'should get records by not matcher'

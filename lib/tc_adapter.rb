@@ -50,11 +50,17 @@ module DataMapper
       end
 
       def read_many(query)
-        condition = get_id(query)
+        # condition = get_id(query)
         results = []
         
-        if condition # Model.all w argument
-          raise NotImplementedError
+        # if property.name == :id # Model.get
+        
+        unless query.conditions.empty?
+          operator, property, value = query.conditions.first
+          item_ids = access_data(query.model, property.name) do |item|
+            item.getlist(value)
+          end
+          results = get_items_from_id(query, item_ids)
         else # Model.all w/o argument
           access_data(query.model) do |item|
             #Getting the first id
@@ -198,6 +204,18 @@ module DataMapper
           end
         end
       end
+      
+      def get_items_from_id(query, values)
+        values.map do |value|
+          access_data(query.model) do |item|
+            raw_data = item.get(value)
+            if raw_data
+              Marshal.load(raw_data).marshal_dump
+            end
+          end
+        end
+      end
+      
     end # class AbstractAdapter
   end # module Adapters
 end # module DataMapper
