@@ -31,7 +31,9 @@ module DataMapper
           record = OpenStruct.new(attributes)
           item.put(item_id, Marshal.dump(record))
         end
-        # item.close        
+        # Seems required to return 1 to update @new_record instance variable at DataMapper::Resource.
+        # Not quite sure how it works.
+        1
       end
 
       def read_many(query)
@@ -39,14 +41,7 @@ module DataMapper
       end
 
       def read_one(query)
-        #DataMapper::Query 
-        #query
-        # => #<DataMapper::Query @repository=:default @model=User @fields=[#<Property:User:id>,
-        # <Property:User:name>, #<Property:User:age>] @links=[] 
-        # @conditions=[[:eql, #<Property:User:id>, 1]] 
-        # @order=[#<DataMapper::Query::Direction #<Property:User:id> asc>] 
-        # @limit=1 @offset=0 @reload=false @unique=fa
-        item_id = query.conditions.first.last
+        item_id = get_id(query)
 
         data = do_tokyo_cabinet do |item|
           raw_data = item.get(item_id)
@@ -63,12 +58,37 @@ module DataMapper
         end
       end
 
+      # Looks working without implmenting any...
       def update(attributes, query)
-        raise NotImplementedError
-      end
+        item_id = get_id(query)
 
+        do_tokyo_cabinet do |item|
+          raw_data = item.get(item_id)
+          do_tokyo_cabinet do |item|
+            if raw_data
+              record = Marshal.load(raw_data)
+
+              attributes.each do |key, value|
+                record.send("#{key.name}=", value)
+              end
+
+              item.put(item_id, Marshal.dump(record))              
+            end
+          end
+        end
+
+        # Seems required to return 1 to update @new_record instance variable at DataMapper::Resource.
+        # Not quite sure how it works.
+        1
+      end
+      
       def delete(query)
-        raise NotImplementedError
+        do_tokyo_cabinet do |item|
+          item.out("1")
+        end
+        # Seems required to return 1 to update @new_record instance variable at DataMapper::Resource.
+        # Not quite sure how it works.
+        1
       end
       
     private
@@ -85,6 +105,17 @@ module DataMapper
         item.close        
 
         result
+      end
+      
+      def get_id(query)
+        #DataMapper::Query 
+        #query
+        # => #<DataMapper::Query @repository=:default @model=User @fields=[#<Property:User:id>,
+        # <Property:User:name>, #<Property:User:age>] @links=[] 
+        # @conditions=[[:eql, #<Property:User:id>, 1]] 
+        # @order=[#<DataMapper::Query::Direction #<Property:User:id> asc>] 
+        # @limit=1 @offset=0 @reload=false @unique=fa
+        query.conditions.first.last
       end
     end # class AbstractAdapter
   end # module Adapters

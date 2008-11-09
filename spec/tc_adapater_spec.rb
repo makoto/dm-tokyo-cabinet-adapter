@@ -48,15 +48,18 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
     end
 
     it "should update an item" do
-      pending
       @user.name = 'peter'
+      @user.age = 22
+      
       @user.save
       User.get(@user.id).name.should == @user.name
     end
     it "should destroy an item" do
-      pending
+      # debugger
+      @user.save
       @user.destroy
-      lambda {User.get(@user.id)}.should_raise DataMapp::ObjectNotFound
+      # raise User.get!(@user.id).inspect
+      lambda{User.get!(@user.id)}.should raise_error(DataMapper::ObjectNotFoundError)
     end
   end
 
