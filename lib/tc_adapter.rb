@@ -38,7 +38,7 @@ module DataMapper
         # Creating index for each attributes except id
         resources.first.attributes.each do |key, value|
           unless key == :id
-            access_index(resources.first.class, key) do |item|
+            access_data(resources.first.class, key) do |item|
               item.putlist(value, [item_id])
             end
           end
@@ -88,7 +88,7 @@ module DataMapper
           if property.name == :id # Model.get
             data = get_item_from_id(query, value)
           else # Model.first w argument
-            item_id = access_index(query.model, property.name) do |item|
+            item_id = access_data(query.model, property.name) do |item|
               item.get(value)
             end
             data = get_item_from_id(query, item_id)
@@ -140,11 +140,12 @@ module DataMapper
       end
       
     private
-      def access_data(model, &block)
-        data_path = DataMapper.repository.adapter.uri[:data_path].to_s + "/"
-        
+      # Access Index file if property is given. If not, access data file
+      def access_data(model, property = nil, &block)
         item = BDB::new
-        item.open(data_path + "#{model}.bdb", BDB::OWRITER | BDB::OCREAT)
+        attribute = property.to_s.capitalize if property
+          
+        item.open(data_path + "#{model}#{attribute}.bdb", BDB::OWRITER | BDB::OCREAT)
         
         result = yield(item)
         
@@ -153,21 +154,10 @@ module DataMapper
         result
       end
       
-      def access_index(model, property, &block)
+      def data_path
         data_path = DataMapper.repository.adapter.uri[:data_path].to_s + "/"
-        
-        item = BDB::new
-        attribute = property.to_s.capitalize
-        item.open(data_path + "#{model}#{attribute}.bdb", BDB::OWRITER | BDB::OCREAT)
-        
-        result = yield(item)
-        
-        item.close        
-
-        result        
       end
-      
-      
+            
       def get_id(query)
         unless query.conditions.empty?
           query.conditions.first.last
