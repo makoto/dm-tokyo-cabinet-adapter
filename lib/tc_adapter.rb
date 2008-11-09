@@ -114,8 +114,9 @@ module DataMapper
       end
       
       def delete(query)
+        item_id = get_id(query)
         do_tokyo_cabinet(query.model) do |item|
-          item.out("1")
+          item.out(item_id)
         end
         # Seems required to return 1 to update @new_record instance variable at DataMapper::Resource.
         # Not quite sure how it works.
