@@ -11,6 +11,8 @@ module DataMapper
       
       def create(resources)
         do_tokyo_cabinet(resources.first.model) do |item|
+          #Getting the latest id
+          #TODO:Find out how to get last id using FDB, rather than BDB
           cur = BDBCUR::new(item)
           cur.last
           item_id = cur.key.to_i + 1
@@ -44,6 +46,8 @@ module DataMapper
           raise NotImplementedError
         else # Model.all w/o argument
           do_tokyo_cabinet(query.model) do |item|
+            #Getting the first id
+            #TODO:Find out how to get first id using FDB, rather than BDB
             raw_data = BDBCUR::new(item)
             if raw_data.first
               while key = raw_data.key
@@ -127,8 +131,6 @@ module DataMapper
       def do_tokyo_cabinet(model, &block)
         data_path = DataMapper.repository.adapter.uri[:data_path].to_s + "/"
         
-        #Getting the latest id
-        #TODO:Find out how to get last id using FDB, rather than BDB
         item = BDB::new
         item.open(data_path + "#{model}.bdb", BDB::OWRITER | BDB::OCREAT)
         
