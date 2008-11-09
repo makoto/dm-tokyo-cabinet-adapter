@@ -6,9 +6,6 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
     db_files = Dir.glob(DataMapper.repository.adapter.uri[:data_path].to_s + "/*.*db")
     FileUtils.rm(db_files)
   end
-  # before(:each) do
-  #   pending
-  # end
   
   describe "Repository" do
     it "should return adapter name" do
@@ -20,7 +17,7 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
     end
   end
     
-  describe "Basic CRUD" do
+  describe "CRUD" do
     before(:each) do
       @user = User.create(:name => 'tom')
     end
@@ -84,6 +81,7 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
   end
 
   describe "Matcher" do
+    
     it 'should get records by eql matcher' 
     it 'should get records by not matcher'
     it 'should get records by gt matcher'
