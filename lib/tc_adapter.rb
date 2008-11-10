@@ -189,21 +189,9 @@ module DataMapper
         end
       end
       
-      def get_item_from_id(query, value)
-        result = get_items_from_id(query, value)
-        # access_data(query.model) do |item|
-        #   raw_data = item.get(value)
-        #   if raw_data
-        #     Marshal.load(raw_data)
-        #   end
-        # end
-        # p "get_items_from_id: #{result.inspect}"
-      end
-      
-      # TODO: Refactor to consolidate with get_items_from_id method
       def get_items_from_id(query, values)
-
-        result = values.to_a.map do |value|
+        values_in_array = (values.class == Array ? values : [values])
+        result = values_in_array.map do |value|
           access_data(query.model) do |item|
             raw_data = item.get(value)
             if raw_data
@@ -211,8 +199,7 @@ module DataMapper
             end
           end
         end
-        result = result.first unless values.class == Array
-        result
+        values.class == Array ? result : result.first
       end
       
     end # class AbstractAdapter
