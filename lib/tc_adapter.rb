@@ -100,7 +100,7 @@ module DataMapper
             when :eql
             then
               item_id = access_data(query.model, property.name) do |item|
-                item.get(value)
+                item.getlist(value)
               end
             when :not # TODO: Think about better way to extract, as this is going through data one by one
             then  NotImplementedError{"The below code is not working as order is not always correct"}
