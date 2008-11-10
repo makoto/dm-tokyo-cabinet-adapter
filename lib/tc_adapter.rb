@@ -1,7 +1,6 @@
 require 'rubygems'
 require 'dm-core'
 require 'tokyocabinet'
-require 'ostruct'
 include TokyoCabinet
 require 'ruby-debug'
 
@@ -198,7 +197,6 @@ module DataMapper
       def get_item_from_id(query, value)
         access_data(query.model) do |item|
           raw_data = item.get(value)
-          # OpenStruct#marshal_dump convets OpenStruct into a hash
           if raw_data
             Marshal.load(raw_data)
           end
