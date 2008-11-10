@@ -9,34 +9,26 @@ module DataMapper
     class TokyoCabinetAdapter < AbstractAdapter
       
       def create(resources)
+        resource = resources[0]
+        attributes = resource.attributes
+        
         item_id = access_data(resources.first.model) do |item|
           #Getting the latest id
           #TODO:Find out how to get last id using FDB, rather than BDB
           cur = BDBCUR::new(item)
           cur.last
-          item_id = cur.key.to_i + 1
+          attributes[:id] = cur.key.to_i + 1
           
-          resources.each do |resource|
-            # >> resource.class.key(self.name)
-            # => [#<Property:User:id>]
-            key = resource.class.key(self.name)
-            resource.instance_variable_set(
-              key.first.instance_variable_name, item_id
-            )
-          end
-        
-          # Saving Item to DB
-          attributes = resources.first.attributes
-          attributes[:id] = item_id
-          
-          item.put(item_id, Marshal.dump(attributes))
-          item_id
+          item.put(attributes[:id], Marshal.dump(attributes))
+          attributes[:id]
         end
+
+        resource.instance_variable_set(:@id, item_id)
         
         # Creating index for each attributes except id
-        resources.first.attributes.each do |key, value|
+        attributes.each do |key, value|
           unless key == :id
-            access_data(resources.first.class, key) do |item|
+            access_data(resource.class, key) do |item|
               item.putlist(value, [item_id])
             end
           end
