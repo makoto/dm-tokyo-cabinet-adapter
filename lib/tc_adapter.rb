@@ -91,24 +91,7 @@ module DataMapper
                 item.get(value)
               end
             when :not # TODO: Think about better way to extract, as this is going through data one by one
-            then
-              # NotImplementedError{"The below code is not working as order is not always correct"}
-              ruby_operator = "!="
-              result = ""
-              item_id = access_data(query.model, property.name) do |item|
-                raw_data = BDBCUR::new(item)
-                raw_data.first
-                while key = raw_data.key
-                  if eval("raw_data.key #{ruby_operator} value") 
-                    result = item.get(raw_data.key) 
-                    break
-                  else
-                    raw_data.next
-                  end
-                end
-                result
-              end
-              
+            then  NotImplementedError{"The below code is not working as order is not always correct"}
             else
               raise NotImplementedError("#{operator} is not implmented yet")
             end
