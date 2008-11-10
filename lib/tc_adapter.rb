@@ -40,40 +40,7 @@ module DataMapper
       end
 
       def read_many(query)
-        results = []
-        
-        unless query.conditions.empty?
-          operator, property, value = query.conditions.first
-          
-          if property.name == :id # Model.get
-            results = get_items_from_id(query, value)
-          else # Model.first w argument
-            case operator
-            when :eql
-            then
-              item_ids = access_data(query.model, property.name) do |item|
-                item.getlist(value)
-              end
-            when :not # TODO: Think about better way to extract, as this is going through data one by one
-            then  NotImplementedError{"The below code is not working as order is not always correct"}
-            else
-              raise NotImplementedError("#{operator} is not implmented yet")
-            end
-            results = get_items_from_id(query, item_ids)
-          end
-        else # Model.all w/o argument
-          access_data(query.model) do |item|
-            #Getting the first id
-            #TODO:Find out how to get first id using FDB, rather than BDB
-            raw_data = BDBCUR::new(item)
-            if raw_data.first
-              while key = raw_data.key
-                results << Marshal.load(raw_data.val)
-                raw_data.next
-              end
-            end
-          end
-        end
+        results = parse_query(query)
 
         Collection.new(query) do |collection|
           results.each do |result|
@@ -88,39 +55,8 @@ module DataMapper
       end
 
       def read_one(query)
-        results = []
-        
-        unless query.conditions.empty?
-          operator, property, value = query.conditions.first
-           
-          if property.name == :id # Model.get
-            results = get_items_from_id(query, value)
-          else # Model.first w argument
-            case operator
-            when :eql
-            then
-              item_id = access_data(query.model, property.name) do |item|
-                item.getlist(value)
-              end
-            when :not # TODO: Think about better way to extract, as this is going through data one by one
-            then  NotImplementedError{"The below code is not working as order is not always correct"}
-            else
-              raise NotImplementedError("#{operator} is not implmented yet")
-            end
-            results = get_items_from_id(query, item_id)
-          end
-        else # Model.first w/o argument
-          data = access_data(query.model) do |item|
-            raw_data = BDBCUR::new(item)
-            if raw_data.first
-              while key = raw_data.key
-                results << Marshal.load(raw_data.val)
-                raw_data.next
-              end
-            end
-          end
-        end
-        
+        results = parse_query(query)
+                
         if results.class == Array
           data = results.first
         else
@@ -200,6 +136,44 @@ module DataMapper
           end
         end
         values.class == Array ? result : result.first
+      end
+      
+      def parse_query(query)
+        results = []
+        
+        unless query.conditions.empty?
+          operator, property, value = query.conditions.first
+          
+          if property.name == :id # Model.get
+            results = get_items_from_id(query, value)
+          else # Model.first w argument
+            case operator
+            when :eql
+            then
+              item_ids = access_data(query.model, property.name) do |item|
+                item.getlist(value)
+              end
+            when :not # TODO: Think about better way to extract, as this is going through data one by one
+            then  NotImplementedError{"The below code is not working as order is not always correct"}
+            else
+              raise NotImplementedError("#{operator} is not implmented yet")
+            end
+            results = get_items_from_id(query, item_ids)
+          end
+        else # Model.all w/o argument
+          access_data(query.model) do |item|
+            #Getting the first id
+            #TODO:Find out how to get first id using FDB, rather than BDB
+            raw_data = BDBCUR::new(item)
+            if raw_data.first              
+              while key = raw_data.key
+                results << Marshal.load(raw_data.val)
+                raw_data.next
+              end
+            end
+          end
+        end
+        results
       end
       
     end # class AbstractAdapter
