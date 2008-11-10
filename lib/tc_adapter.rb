@@ -46,7 +46,7 @@ module DataMapper
           operator, property, value = query.conditions.first
           
           if property.name == :id # Model.get
-            results = [get_item_from_id(query, value)]
+            results = get_items_from_id(query, value)
           else # Model.first w argument
             case operator
             when :eql
@@ -94,7 +94,7 @@ module DataMapper
           operator, property, value = query.conditions.first
            
           if property.name == :id # Model.get
-            results = [get_item_from_id(query, value)]
+            results = get_items_from_id(query, value)
           else # Model.first w argument
             case operator
             when :eql
@@ -107,7 +107,7 @@ module DataMapper
             else
               raise NotImplementedError("#{operator} is not implmented yet")
             end
-            results = [get_item_from_id(query, item_id)]
+            results = get_items_from_id(query, item_id)
           end
         else # Model.first w/o argument
           data = access_data(query.model) do |item|
@@ -121,8 +121,11 @@ module DataMapper
           end
         end
         
-        data = results.first unless results.size == 0
-
+        if results.class == Array
+          data = results.first
+        else
+          data = results
+        end
         if data
           data = query.fields.map do |property|
             data[property.field.to_sym]
@@ -194,10 +197,10 @@ module DataMapper
         #     Marshal.load(raw_data)
         #   end
         # end
-        # p "get_item_from_id: #{result.inspect}"
+        # p "get_items_from_id: #{result.inspect}"
       end
       
-      # TODO: Refactor to consolidate with get_item_from_id method
+      # TODO: Refactor to consolidate with get_items_from_id method
       def get_items_from_id(query, values)
 
         result = values.to_a.map do |value|
