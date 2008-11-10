@@ -30,8 +30,7 @@ module DataMapper
           attributes = resources.first.attributes
           attributes[:id] = item_id
           
-          record = OpenStruct.new(attributes)
-          item.put(item_id, Marshal.dump(record))
+          item.put(item_id, Marshal.dump(attributes))
           item_id
         end
         
@@ -68,7 +67,7 @@ module DataMapper
             raw_data = BDBCUR::new(item)
             if raw_data.first
               while key = raw_data.key
-                results << Marshal.load(raw_data.val).marshal_dump
+                results << Marshal.load(raw_data.val)
                 raw_data.next
               end
             end
@@ -128,7 +127,7 @@ module DataMapper
           data = access_data(query.model) do |item|
             raw_data = BDBCUR::new(item)
             if raw_data.first
-              Marshal.load(raw_data.val).marshal_dump
+              Marshal.load(raw_data.val)
             end
           end
         end
@@ -149,7 +148,8 @@ module DataMapper
             record = Marshal.load(raw_data)
 
             attributes.each do |key, value|
-              record.send("#{key.name}=", value)
+              record[key.name.to_sym] = value
+              # record.send("#{key.name}=", value)
             end
 
             item.put(item_id, Marshal.dump(record))              
@@ -200,7 +200,7 @@ module DataMapper
           raw_data = item.get(value)
           # OpenStruct#marshal_dump convets OpenStruct into a hash
           if raw_data
-            Marshal.load(raw_data).marshal_dump
+            Marshal.load(raw_data)
           end
         end
       end
@@ -211,7 +211,7 @@ module DataMapper
           access_data(query.model) do |item|
             raw_data = item.get(value)
             if raw_data
-              Marshal.load(raw_data).marshal_dump
+              Marshal.load(raw_data)
             end
           end
         end
