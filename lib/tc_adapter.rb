@@ -56,17 +56,13 @@ module DataMapper
 
       def read_one(query)
         results = parse_query(query)
-                
-        if results.class == Array
-          data = results.first
-        else
-          data = results
-        end
+        data = (results.class == Array ? results.first : results)
+
         if data
           data = query.fields.map do |property|
             data[property.field.to_sym]
           end
-          query.model.load(data,query)
+          query.model.load(data, query)
         end
       end
 
@@ -79,7 +75,6 @@ module DataMapper
 
             attributes.each do |key, value|
               record[key.name.to_sym] = value
-              # record.send("#{key.name}=", value)
             end
 
             item.put(item_id, Marshal.dump(record))              
