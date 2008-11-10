@@ -40,17 +40,27 @@ module DataMapper
       end
 
       def read_many(query)
-        # condition = get_id(query)
         results = []
-        
-        # if property.name == :id # Model.get
         
         unless query.conditions.empty?
           operator, property, value = query.conditions.first
-          item_ids = access_data(query.model, property.name) do |item|
-            item.getlist(value)
+          
+          if property.name == :id # Model.get
+            results = [get_item_from_id(query, value)]
+          else # Model.first w argument
+            case operator
+            when :eql
+            then
+              item_ids = access_data(query.model, property.name) do |item|
+                item.getlist(value)
+              end
+            when :not # TODO: Think about better way to extract, as this is going through data one by one
+            then  NotImplementedError{"The below code is not working as order is not always correct"}
+            else
+              raise NotImplementedError("#{operator} is not implmented yet")
+            end
+            results = get_items_from_id(query, item_ids)
           end
-          results = get_items_from_id(query, item_ids)
         else # Model.all w/o argument
           access_data(query.model) do |item|
             #Getting the first id
@@ -78,11 +88,13 @@ module DataMapper
       end
 
       def read_one(query)
+        results = []
+        
         unless query.conditions.empty?
           operator, property, value = query.conditions.first
            
           if property.name == :id # Model.get
-            data = get_item_from_id(query, value)
+            results = [get_item_from_id(query, value)]
           else # Model.first w argument
             case operator
             when :eql
@@ -95,16 +107,21 @@ module DataMapper
             else
               raise NotImplementedError("#{operator} is not implmented yet")
             end
-            data = get_item_from_id(query, item_id)
+            results = [get_item_from_id(query, item_id)]
           end
         else # Model.first w/o argument
           data = access_data(query.model) do |item|
             raw_data = BDBCUR::new(item)
             if raw_data.first
-              Marshal.load(raw_data.val)
+              while key = raw_data.key
+                results << Marshal.load(raw_data.val)
+                raw_data.next
+              end
             end
           end
         end
+        
+        data = results.first unless results.size == 0
 
         if data
           data = query.fields.map do |property|
@@ -170,17 +187,20 @@ module DataMapper
       end
       
       def get_item_from_id(query, value)
-        access_data(query.model) do |item|
-          raw_data = item.get(value)
-          if raw_data
-            Marshal.load(raw_data)
-          end
-        end
+        result = get_items_from_id(query, value)
+        # access_data(query.model) do |item|
+        #   raw_data = item.get(value)
+        #   if raw_data
+        #     Marshal.load(raw_data)
+        #   end
+        # end
+        # p "get_item_from_id: #{result.inspect}"
       end
       
       # TODO: Refactor to consolidate with get_item_from_id method
       def get_items_from_id(query, values)
-        values.map do |value|
+
+        result = values.to_a.map do |value|
           access_data(query.model) do |item|
             raw_data = item.get(value)
             if raw_data
@@ -188,6 +208,8 @@ module DataMapper
             end
           end
         end
+        result = result.first unless values.class == Array
+        result
       end
       
     end # class AbstractAdapter
