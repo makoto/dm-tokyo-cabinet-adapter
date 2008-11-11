@@ -44,11 +44,7 @@ module DataMapper
 
         Collection.new(query) do |collection|
           results.each do |result|
-            
-            data = query.fields.map do |property|
-              result[property.field.to_sym]
-            end
-            
+            data = map_into_query_field(query, result)
             collection.load(data)
           end
         end
@@ -59,9 +55,7 @@ module DataMapper
         data = (results.class == Array ? results.first : results)
 
         if data
-          data = query.fields.map do |property|
-            data[property.field.to_sym]
-          end
+          data = map_into_query_field(query, data)
           query.model.load(data, query)
         end
       end
@@ -171,6 +165,11 @@ module DataMapper
         results
       end
       
+      def map_into_query_field(query, data)
+        query.fields.map do |property|
+          data[property.field.to_sym]
+        end
+      end
     end # class AbstractAdapter
   end # module Adapters
 end # module DataMapper
