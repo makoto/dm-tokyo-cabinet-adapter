@@ -83,9 +83,12 @@ module DataMapper
         end
         
         # Creating index for each attributes except id
+        debugger
+        attributes = attributes.map{|k,v| k.name => v}
+        
         attributes.each do |key, value|
-          unless key.name == :id
-            access_data(query.model, key.name) do |item|
+          unless key == :id
+            access_data(query.model, key) do |item|
               item.putlist(value, [item_id])
             end
           end
