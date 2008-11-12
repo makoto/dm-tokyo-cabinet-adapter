@@ -47,33 +47,31 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
     end
 
     describe "update" do
-      it "should update an item" do
+      before(:each) do
         @user.name = 'peter'
         @user.age = 22
 
         @user.save
-        user = User.get(@user.id)
-        user.name.should == @user.name
-        user.age.should == @user.age
       end
-
-      # it "should reflect index" do
-      #   @user.name = 'thomas'
-      #   @user.save
-      #   User.first(:name => 'thomas').should == @user
-      # end
-    end
-    
-    describe "destroy" do
-      it "should destroy an item" do
-        @user.destroy
-        lambda{User.get!(@user.id)}.should raise_error(DataMapper::ObjectNotFoundError)
-        User.first(:name => @user.name).should == nil
-        User.all(:name => @user.name).should == []
+      it "should update an item" do
+        User.get(@user.id) == @user
       end
 
       it "should reflect index" do
-        pending
+        User.first(:name => @user.name).should == @user
+      end
+    end
+
+    describe "destroy" do
+      before(:each) do
+        @user.destroy
+      end
+      it "should destroy an item" do
+        lambda{User.get!(@user.id)}.should raise_error(DataMapper::ObjectNotFoundError)
+      end
+      it "should reflect index" do
+        User.first(:name => @user.name).should == nil
+        User.all(:name => @user.name).should == []
       end
     end
   end

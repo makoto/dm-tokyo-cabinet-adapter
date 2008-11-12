@@ -68,6 +68,29 @@ module DataMapper
 
       def update(attributes, query)
         item_id = get_id(query)
+        
+        old_attributes = get_items_from_id(query, item_id)
+
+        old_attributes.reject{|k,v| k == :id || v == nil}.each do | k, v|
+          access_data(query.model, k) do |item|
+            items = item.getlist(v)
+            items = items - [item_id]
+            item.out(v)
+            if items.size > 0
+              item.putlist(v, items)
+            end
+          end
+        end
+        
+        # Creating index for each attributes except id
+        attributes.each do |key, value|
+          unless key.name == :id
+            access_data(query.model, key.name) do |item|
+              item.putlist(value, [item_id])
+            end
+          end
+        end
+        
         access_data(query.model) do |item|
           raw_data = item.get(item_id)
           if raw_data
