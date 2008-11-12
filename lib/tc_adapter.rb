@@ -25,14 +25,7 @@ module DataMapper
 
         resource.instance_variable_set(:@id, item_id)
         
-        # Creating index for each attributes except id
-        attributes.each do |key, value|
-          unless key == :id
-            access_data(resource.class, key) do |item|
-              item.putlist(value, [item_id])
-            end
-          end
-        end
+        add_index(attributes, resource, item_id)
         
         # Seems required to return 1 to update @new_record instance variable at DataMapper::Resource.
         # Not quite sure how it works.
@@ -70,29 +63,12 @@ module DataMapper
         item_id = get_id(query)
         
         old_attributes = get_items_from_id(query, item_id)
-
-        old_attributes.reject{|k,v| k == :id || v == nil}.each do | k, v|
-          access_data(query.model, k) do |item|
-            items = item.getlist(v)
-            items = items - [item_id]
-            item.out(v)
-            if items.size > 0
-              item.putlist(v, items)
-            end
-          end
-        end
+        delete_index(old_attributes, query, item_id)
         
-        # Creating index for each attributes except id
-        debugger
-        attributes = attributes.map{|k,v| k.name => v}
+        # Converting {#<Property:User:name>=>"peter", #<Property:User:age>=>22} to {:age=>22, :name=>"peter"}
+        new_attributes = attributes.inject({}){|total,current|  total[current[0].name] = current[1]; total}
         
-        attributes.each do |key, value|
-          unless key == :id
-            access_data(query.model, key) do |item|
-              item.putlist(value, [item_id])
-            end
-          end
-        end
+        add_index(new_attributes, query, item_id)
         
         access_data(query.model) do |item|
           raw_data = item.get(item_id)
@@ -112,20 +88,10 @@ module DataMapper
       end
       
       def delete(query)
-        item_id = get_id(query)
-        
+        item_id = get_id(query)        
         attributes = get_items_from_id(query, item_id)
-        # Don't need id attribute and attribut with no data.
-        attributes.reject{|k,v| k == :id || v == nil}.each do | k, v|
-          access_data(query.model, k) do |item|
-            items = item.getlist(v)
-            items = items - [item_id]
-            item.out(v)
-            if items.size > 0
-              item.putlist(v, items)
-            end
-          end
-        end
+        
+        delete_index(attributes, query, item_id)
         
         access_data(query.model) do |item|
           item.out(item_id)
@@ -219,6 +185,33 @@ module DataMapper
           end
         end
       end
+
+      def delete_index(attributes, query, item_id)
+        # Don't need id attribute and attribut with no data.
+        attributes.reject{|k,v| k == :id || v == nil}.each do | k, v|
+          access_data(query.model, k) do |item|
+            items = item.getlist(v)
+            items = items - [item_id]
+            item.out(v)
+            if items.size > 0
+              item.putlist(v, items)
+            end
+          end
+        end
+      end
+      
+      def add_index(attributes, query, item_id)
+        attributes.each do |key, value|
+          # Creating index for each attributes except id
+          unless key == :id
+            access_data(query.model, key) do |item|
+              item.putlist(value, [item_id])
+            end
+          end
+        end
+      end
+      
+      
     end # class AbstractAdapter
   end # module Adapters
 end # module DataMapper
