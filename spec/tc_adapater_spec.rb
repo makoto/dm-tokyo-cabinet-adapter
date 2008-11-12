@@ -46,36 +46,65 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
       end
     end
 
-    it "should update an item" do
-      @user.name = 'peter'
-      @user.age = 22
-      
-      @user.save
-      user = User.get(@user.id)
-      user.name.should == @user.name
-      user.age.should == @user.age
+    describe "update" do
+      it "should update an item" do
+        @user.name = 'peter'
+        @user.age = 22
+
+        @user.save
+        user = User.get(@user.id)
+        user.name.should == @user.name
+        user.age.should == @user.age
+      end
+
+      # it "should reflect index" do
+      #   @user.name = 'thomas'
+      #   @user.save
+      #   User.first(:name => 'thomas').should == @user
+      # end
     end
-    it "should destroy an item" do
-      @user.destroy
-      lambda{User.get!(@user.id)}.should raise_error(DataMapper::ObjectNotFoundError)
+    
+    describe "destroy" do
+      it "should destroy an item" do
+        @user.destroy
+        lambda{User.get!(@user.id)}.should raise_error(DataMapper::ObjectNotFoundError)
+        User.first(:name => @user.name).should == nil
+        User.all(:name => @user.name).should == []
+      end
+
+      it "should reflect index" do
+        pending
+      end
     end
   end
 
   describe 'Finder' do
-    before(:each) do
-      @tom = User.create(:name => 'tom')
-      @peter = User.create(:name => 'peter')
-      @post = Post.create
+    describe "when no data" do
+      it "first should return nil" do
+        User.first(:name => 'someone').should == nil
+      end
+      
+      it "all should return []" do
+        User.all(:name => 'someone').should == []
+      end
     end
+    
+    describe "when data" do
+      before(:each) do
+        @tom = User.create(:name => 'tom')
+        @peter = User.create(:name => 'peter')
+        @post = Post.create
+      end
 
-    it 'should get one record per model' do
-      User.first.should == @tom
-      Post.first.should == @post
-    end
+      it 'should get one record per model' do
+        User.first.should == @tom
+        Post.first.should == @post
+      end
 
-    it 'should return collection of all records per model' do
-      Post.all.should have(1).post
-      User.all.should have(2).users
+      it 'should return collection of all records per model' do
+        Post.all.should have(1).post
+        User.all.should have(2).users
+      end
     end
     
   end

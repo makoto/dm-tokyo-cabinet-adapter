@@ -42,11 +42,17 @@ module DataMapper
       def read_many(query)
         results = parse_query(query)
 
-        Collection.new(query) do |collection|
-          results.each do |result|
-            data = map_into_query_field(query, result)
-            collection.load(data)
+        if results # to handle results == nil
+          Collection.new(query) do |collection|
+            results.each do |result|
+              data = map_into_query_field(query, result)
+              if data # to handle results == [nil]
+                collection.load(data)
+              end
+            end
           end
+        else
+          []
         end
       end
 
@@ -81,9 +87,24 @@ module DataMapper
       
       def delete(query)
         item_id = get_id(query)
+        
+        attributes = get_items_from_id(query, item_id)
+        # Don't need id attribute and attribut with no data.
+        attributes.reject{|k,v| k == :id || v == nil}.each do | k, v|
+          access_data(query.model, k) do |item|
+            items = item.getlist(v)
+            items = items - [item_id]
+            item.out(v)
+            if items.size > 0
+              item.putlist(v, items)
+            end
+          end
+        end
+        
         access_data(query.model) do |item|
           item.out(item_id)
         end
+
         # Seems required to return 1 to update @new_record instance variable at DataMapper::Resource.
         # Not quite sure how it works.
         1
@@ -166,8 +187,10 @@ module DataMapper
       end
       
       def map_into_query_field(query, data)
-        query.fields.map do |property|
-          data[property.field.to_sym]
+        if data
+          query.fields.map do |property|
+            data[property.field.to_sym]
+          end
         end
       end
     end # class AbstractAdapter
