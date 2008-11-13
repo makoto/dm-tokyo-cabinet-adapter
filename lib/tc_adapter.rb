@@ -35,6 +35,13 @@ module DataMapper
       def read_many(query)
         results = parse_query(query)
 
+        if results
+          results = results.sort_by do |result|
+            result[query.order.first.property.name] if result
+          end
+          results = results.reverse if query.order.first.direction == :desc
+        end
+
         if results # to handle results == nil
           Collection.new(query) do |collection|
             results.each do |result|

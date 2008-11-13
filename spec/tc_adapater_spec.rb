@@ -171,22 +171,61 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
   end
 
   describe "DataType" do
-    it "should order numeric"
+    before(:each) do
+      @dave = User.create(:name => 'dave', :age => 5)
+      @charles = User.create(:name => 'charles', :age => 15)
+      @bob = User.create(:name => 'bob', :age => 3)
+      @andy = User.create(:name => 'andy', :age => 4)
+    end
+
+    describe "sorting" do
+      # Tokyo Cabinet itself does not provide sorting, so done at ruby level.
+      it "should order by alphabet asc" do
+        User.all(:order => [:name]).should == [@andy, @bob, @charles, @dave]
+      end
+
+      it "should order by alphabet desc" do
+        User.all(:order => [:name.desc]).should == [@andy, @bob, @charles, @dave].reverse
+      end
+
+      it "should order by numeric asc" do
+        User.all(:order => [:age]).should == [@bob, @andy, @dave, @charles]
+      end
+
+      it "should order by numeric desc" do
+        User.all(:order => [:age.desc]).should == [@bob, @andy, @dave, @charles].reverse
+      end
+    end
   end
   
   describe 'associations' do
-   before(:each) do
-     @user = User.create(:name => 'tom')
-     @post = Post.create(:title => 'Good morning', :user => @user)
-     # @post = Post.create(:title => 'Good morning')
-     # @user.posts << @post
-   end
-   it 'should work with belongs_to associations' do 
-     User.get(@user.id).posts.should include(@post)
-   end
-    
-   it 'should work with has n associations' do
-     Post.get(@post.id).user.should == @user
-   end
+    before(:each) do
+      @user = User.create(:name => 'tom')
+      @post = Post.create(:title => 'Good morning', :user => @user)
+    end
+  
+    describe "Adding association" do
+     it 'should work with belongs_to associations' do 
+       User.get(@user.id).posts.should include(@post)
+     end
+
+     it 'should work with has n associations' do
+       Post.get(@post.id).user.should == @user
+     end
+    end
+    describe "Appending association" do
+      before(:each) do
+        @post2 = Post.create(:title => 'Good morning', :user => @user)
+        @user.posts << @post2
+      end
+      it 'should work with belongs_to associations' do 
+        User.get(@user.id).posts.should == [@post, @post2]
+      end
+
+      it 'should work with has n associations' do
+        Post.get(@post.id).user.should == @user
+        Post.get(@post2.id).user.should == @user
+      end
+    end
   end
 end
