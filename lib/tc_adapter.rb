@@ -152,6 +152,7 @@ module DataMapper
             when :eql
             then
               item_ids = access_data(query.model, property.name) do |item|
+                value = value.first if value.class == Array                
                 item.getlist(value)
               end
             when :not # TODO: Think about better way to extract, as this is going through data one by one

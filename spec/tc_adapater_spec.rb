@@ -173,22 +173,20 @@ describe DataMapper::Adapters::TokyoCabinetAdapter do
   describe "DataType" do
     it "should order numeric"
   end
-   
+  
   describe 'associations' do
    before(:each) do
-     pending
      @user = User.create(:name => 'tom')
-     @post = Post.create(:title => 'Good morning')
-     @user.posts << @post
+     @post = Post.create(:title => 'Good morning', :user => @user)
+     # @post = Post.create(:title => 'Good morning')
+     # @user.posts << @post
    end
    it 'should work with belongs_to associations' do 
-     pending
-     @user.posts.should be_include(@post)
+     User.get(@user.id).posts.should include(@post)
    end
     
    it 'should work with has n associations' do
-     pending
-     @post.user.should == @user
+     Post.get(@post.id).user.should == @user
    end
   end
 end
