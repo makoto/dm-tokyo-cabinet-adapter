@@ -12,7 +12,7 @@ module DataMapper
         resource = resources[0]
         attributes = resource.attributes
         
-        item_id = access_data(resources.first.model) do |item|
+        item_id = access_data(resource.model) do |item|
           #Getting the latest id
           #TODO:Find out how to get last id using FDB, rather than BDB
           cur = BDBCUR::new(item)
@@ -67,7 +67,6 @@ module DataMapper
         
         # Converting {#<Property:User:name>=>"peter", #<Property:User:age>=>22} to {:age=>22, :name=>"peter"}
         new_attributes = attributes.inject({}){|total,current|  total[current[0].name] = current[1]; total}
-        
         add_index(new_attributes, query, item_id)
         
         access_data(query.model) do |item|
@@ -210,7 +209,6 @@ module DataMapper
           end
         end
       end
-      
       
     end # class AbstractAdapter
   end # module Adapters
