@@ -1,8 +1,37 @@
-An experimentation to add ORM on top of Tokyo Cabinet http://tokyocabinet.sourceforge.net/index.html
-WARNING::: This is not ready, so I haven't created gems yet.
+An experimentation to add ORM on top of Tokyo Cabinet 
 
+What Is Tokyo Cabinet?
+- Modern implementation of DBM(key/value hash style(HDB), but supports fixed length hash(FDB), and b tree(BDB))
+- High concurrency/ high scalability (developed by a developer at Mixi, Japanese version of Facebook)
+- More detail at http://tokyocabinet.sourceforge.net/index.html
 
+How dm-tokyo-cabinet-adapter stores data into Tokyo Cabinet.
 
-RESEARCH TOPICS:
+- Each object is stored as "ObjName.bdb" file: object id as key and entire data marshalled as value
+- Each attribute is stored as "ObjNameAttribute.bdb" file: attribute name as key and reference object id as value
+- The above architecture can also be considerd "ObjeName.bdb" as table and "ObjNameAttribute.bdb" as indexes for each attributes.
+- Currently implements basic CRUD, association, and eql finder.
+
+Motivation behind the development.
+
+- To experiment what you can do with basic hash based database. 
+  Interesting post at http://groups.google.com/group/merb/browse_thread/thread/a8c6b154576c6270
+- To learn internal of DataMapper and how to implement ORM/adapter 
+
+How to install (Work in progress)
+
+1. Install Tokyo Cabinet http://tokyocabinet.sourceforge.net
+2. Install Ruby Binding  http://tokyocabinet.sourceforge.net/rubydoc/
+3. Install dm-tokyo-cabinet-adapter
+3.1 download dm-tokyo-cabinet-adapter
+3.2 cd to the dir
+3.3 gem build dm-tokyo-cabinet-adapter.gemspec 
+3.4 gem install dm-tokyo-cabinet-adapter-0.0.1.gem
+4. Set data dir
+5. Setup DataMapper.setup
+
+Further research topics/TODO
+- Performance benchmarking.
+- At this moment, it's only uses B tree, as it covers the wide range of functionality (range search, duplicate values, transaction support, and so on). Consider replacing part to HDB or FDB for compact storage and speed.
 - Are there any ways to retrieve first/last key on FDB/HDB?
 - Can TC support "not equal" operation?

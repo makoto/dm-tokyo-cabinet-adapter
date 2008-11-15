@@ -2,7 +2,6 @@ require 'rubygems'
 require 'dm-core'
 require 'tokyocabinet'
 include TokyoCabinet
-require 'ruby-debug'
 
 module DataMapper
   module Adapters
