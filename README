@@ -36,9 +36,13 @@ How to install
 
 6. The rest is usual way to setup datamapper on Merb.
 
+Benchmarking results
+http://gist.github.com/25521
+
+My current implementation is a lot slower than MySQL and sqlite, but changing some data storage strategies speed up the performance dramatically, so there are lots of potential for optimization. 
+
 Further research topics/TODO
 - Implement outstanding tasks such as multi conditions, other finder conditions (<, <=, like), Data Types
-- Performance benchmarking.
 - At this moment, it's only uses B tree, as it covers the wide range of functionality (range search, duplicate values, transaction support, and so on). Consider replacing part to HDB or FDB for compact storage and speed.
 - Are there any ways to retrieve first/last key on FDB/HDB?
 - Can TC support "not equal" operation?
