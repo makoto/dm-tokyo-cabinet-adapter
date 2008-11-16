@@ -26,7 +26,7 @@ How to install
 3.1 download dm-tokyo-cabinet-adapter
 3.2 cd to the dir
 3.3 gem build dm-tokyo-cabinet-adapter.gemspec 
-3.4 gem install dm-tokyo-cabinet-adapter-0.0.1.gem
+3.4 gem install dm-tokyo-cabinet-adapter-0.0.2.gem
 4. Create data dir
 5. Setup database.yml like below
 
