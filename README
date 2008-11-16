@@ -18,7 +18,7 @@ Motivation behind the development.
   Interesting post at http://groups.google.com/group/merb/browse_thread/thread/a8c6b154576c6270
 - To learn internal of DataMapper and how to implement ORM/adapter 
 
-How to install (Work in progress)
+How to install
 
 1. Install Tokyo Cabinet http://tokyocabinet.sourceforge.net
 2. Install Ruby Binding  http://tokyocabinet.sourceforge.net/rubydoc/
@@ -37,6 +37,7 @@ How to install (Work in progress)
 6. The rest is usual way to setup datamapper on Merb.
 
 Further research topics/TODO
+- Implement outstanding tasks such as multi conditions, other finder conditions (<, <=, like), Data Types
 - Performance benchmarking.
 - At this moment, it's only uses B tree, as it covers the wide range of functionality (range search, duplicate values, transaction support, and so on). Consider replacing part to HDB or FDB for compact storage and speed.
 - Are there any ways to retrieve first/last key on FDB/HDB?
