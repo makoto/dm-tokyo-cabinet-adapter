@@ -112,7 +112,6 @@ module DataMapper
       def access_data(model, property = nil, &block)
         item = BDB::new
         attribute = property.to_s.capitalize if property
-          
         item.open(data_path + "#{model}#{attribute}.bdb", BDB::OWRITER | BDB::OCREAT)
         
         result = yield(item)
@@ -133,15 +132,17 @@ module DataMapper
       end
       
       def get_items_from_id(query, values)
+        result = []
         values_in_array = (values.class == Array ? values : [values])
-        result = values_in_array.map do |value|
-          access_data(query.model) do |item|
-            raw_data = item.get(value)
-            if raw_data
-              Marshal.load(raw_data)
-            end
+        access_data(query.model) do |item|
+          result = values_in_array.map do |value|
+              raw_data = item.get(value)
+              if raw_data
+                Marshal.load(raw_data)
+              end
           end
         end
+        
         values.class == Array ? result : result.first
       end
       
