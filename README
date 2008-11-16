@@ -2,7 +2,7 @@ An experimentation to add ORM on top of Tokyo Cabinet
 
 What Is Tokyo Cabinet?
 - Modern implementation of DBM(key/value hash style(HDB), but supports fixed length hash(FDB), and b tree(BDB))
-- High concurrency/ high scalability (developed by a developer at Mixi, Japanese version of Facebook)
+- High concurrency/ high scalability (developed by a developer at Mixi, Japanese equivalent of Facebook)
 - More detail at http://tokyocabinet.sourceforge.net/index.html
 
 How dm-tokyo-cabinet-adapter stores data into Tokyo Cabinet.
