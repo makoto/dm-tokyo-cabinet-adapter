@@ -1,6 +1,8 @@
 require 'rubygems'
+require 'dm-core'
+
 require 'pathname'
-require Pathname(__FILE__).dirname.parent.expand_path + 'lib/tc_adapter'
+require Pathname(__FILE__).dirname.parent.expand_path + 'lib/tokyo_cabinet_adapter'
 
 DataMapper.setup(:default, {
   :adapter => 'tokyo_cabinet',

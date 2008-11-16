@@ -27,8 +27,14 @@ How to install (Work in progress)
 3.2 cd to the dir
 3.3 gem build dm-tokyo-cabinet-adapter.gemspec 
 3.4 gem install dm-tokyo-cabinet-adapter-0.0.1.gem
-4. Set data dir
-5. Setup DataMapper.setup
+4. Create data dir
+5. Setup database.yml like below
+
+:development: 
+  :adapter: tokyo_cabinet
+  :data_path: <%= Pathname(__FILE__).dirname.expand_path + 'data' %>
+
+6. The rest is usual way to setup datamapper on Merb.
 
 Further research topics/TODO
 - Performance benchmarking.
