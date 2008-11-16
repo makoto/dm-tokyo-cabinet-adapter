@@ -6,14 +6,13 @@ Gem::Specification.new do |s|
   s.date = %q{2008-11-15}
   s.description = %q{A DataMapper adapter for Tokyo Cabinet}
   s.email = %q{inouemak@googlemail.com}
-  s.files = ["lib/tc_adapter.rb", "README", "Rakefile", "dm-tokyo-cabinet-adapter.gemspec", "spec/tc_adapter_spec.rb", "spec/spec_helper.rb"]
+  s.files = ["lib/tokyo_cabinet_adapter.rb", "README", "dm-tokyo-cabinet-adapter.gemspec", "spec/tokyo_cabinet_adapter_spec.rb", "spec/spec_helper.rb"]
   s.homepage = %q{http://github.com/makoto/dm-tokyo-cabinet-adapter}
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.2.0}
   s.summary = %q{A DatMapper adapter for Tokyo Cabinet}
-  s.test_files = ["spec/tc_adapter_spec.rb", "spec/spec_helper.rb"]
+  s.test_files = ["spec/tokyo_cabinet_adapter_spec.rb", "spec/spec_helper.rb"]
+  s.add_runtime_dependency(%q<dm-core>, ["> 0.0.0"])
 end
 
 
-require 'dm-core'
-require 'tokyocabinet'
