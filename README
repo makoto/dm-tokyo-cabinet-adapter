@@ -37,7 +37,7 @@ How to install
 6. The rest is usual way to setup datamapper on Merb.
 
 Benchmarking results
-http://gist.github.com/25521
+http://gist.github.com/25946
 
 My current implementation is a lot slower than MySQL and sqlite, but changing some data storage strategies speed up the performance dramatically, so there are lots of potential for optimization. 
 
