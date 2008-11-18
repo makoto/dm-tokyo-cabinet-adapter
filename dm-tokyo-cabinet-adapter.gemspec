@@ -12,7 +12,6 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.2.0}
   s.summary = %q{A DatMapper adapter for Tokyo Cabinet}
   s.test_files = ["spec/tokyo_cabinet_adapter_spec.rb", "spec/spec_helper.rb"]
-  s.add_runtime_dependency(%q<dm-core>, ["> 0.0.0"])
 end
 
 
